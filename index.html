@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人主页</title>
+    <!-- 使用 Google Font 提升字体质感 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        /* 全局重置 & 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            color: #0f172a;
+        }
+
+        /* 主卡片 — 干净、留白、柔和阴影 */
+        .main-card {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2.5rem;
+            padding: 3rem 2.5rem 2.5rem 2.5rem;
+            box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.06), 0 4px 18px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        /* ===== 个人信息区 ===== */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            border: 2px solid #ffffff;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .profile-info h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .profile-info .tagline {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: #475569;
+            letter-spacing: -0.01em;
+        }
+
+        .profile-info .bio {
+            font-size: 0.95rem;
+            color: #64748b;
+            max-width: 480px;
+            line-height: 1.5;
+            margin-top: 0.15rem;
+        }
+
+        /* 社交小图标（点缀） */
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.4rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #334155;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .social-links a:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.02);
+        }
+
+        /* ===== 横向滚动图片列表 ===== */
+        .scroll-section {
+            margin-top: 0.8rem;
+        }
+
+        .scroll-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1.2rem;
+        }
+
+        .scroll-header h2 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #1e293b;
+            letter-spacing: -0.01em;
+        }
+
+        .scroll-header .hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        /* 滚动容器 — 横向滚动 + 平滑滚动 + 隐藏滚动条（但保留功能） */
+        .scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 0.75rem;
+            /* 让滚动条不占太多视觉空间 */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            border-radius: 1.5rem;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 12px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 12px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .image-row {
+            display: flex;
+            gap: 1.25rem;
+            width: max-content;
+            padding: 0.25rem 0.1rem;
+        }
+
+        /* 每个图片卡片 — 柔和圆角 + 微阴影 + 悬停动效 */
+        .image-item {
+            flex: 0 0 auto;
+            width: 220px;
+            height: 160px;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            background: #f1f5f9;
+            border: 1px solid #f1f5f9;
+            cursor: pointer; /* 新增：提示可点击 */
+        }
+
+        .image-item:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.12);
+            border-color: #e2e8f0;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+            pointer-events: none; /* 让点击事件由父级 .image-item 处理 */
+        }
+
+        .image-item:hover img {
+            transform: scale(1.02);
+        }
+
+        /* 占位提示（当图片未加载或为空时） */
+        .image-item .placeholder-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        /* ===== 页脚 ===== */
+        .footer-note {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1.8rem;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .main-card {
+                padding: 2rem 1.25rem 1.8rem 1.25rem;
+                border-radius: 1.8rem;
+            }
+
+            .profile {
+                gap: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .avatar {
+                width: 72px;
+                height: 72px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.6rem;
+            }
+
+            .profile-info .tagline {
+                font-size: 0.95rem;
+            }
+
+            .profile-info .bio {
+                font-size: 0.9rem;
+            }
+
+            .image-item {
+                width: 160px;
+                height: 120px;
+                border-radius: 1.2rem;
+            }
+
+            .scroll-header h2 {
+                font-size: 1rem;
+            }
+
+            .scroll-header .hint {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .image-item {
+                width: 130px;
+                height: 100px;
+                border-radius: 1rem;
+            }
+
+            .image-row {
+                gap: 0.9rem;
+            }
+        }
+
+        /* ===== 新增：模态框（灯箱）样式 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 999;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 85vh;
+            background: transparent;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+            transform: scale(0.92);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content img {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 1.5rem;
+            background: #0f172a;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 300;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            line-height: 1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        @media (max-width: 640px) {
+            .modal-close {
+                top: 0.6rem;
+                right: 0.8rem;
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+
+        <!-- ===== 个人信息 ===== -->
+        <div class="profile">
+            <!-- 头像 (可替换为自己的图片) -->
+            <img
+            class="avatar"
+            src="./b_55891ec8a4c0b13250e2ef6f91d7de3b.jpg"
+            alt="头像"/>
+
+            <div class="profile-info">
+                <h1>狡猾的老鼠</h1>
+                <div class="tagline">✨ 02 · 金牛 · ♂</div>
+                <div class="bio">
+                    世事短如春梦，人情薄似秋云。
+                </div>
+                <!-- 可选的社交链接 (可删除或替换) -->
+                <div class="social-links">
+                    <a href="#" aria-label="GitHub" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="#" aria-label="Bilibili" title="哔哩哔哩" target="_blank"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://v.douyin.com/BL9-KXNH-lo/ 3@3.com" aria-label="抖音" title="抖音" target="_blank"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 横向滚动图片列表 ===== -->
+        <div class="scroll-section">
+            <div class="scroll-header">
+                <!-- <h2>📸</h2>
+                <span class="hint">← 左右滑动浏览 →</span>-->
+            </div>
+
+            <div class="scroll-wrapper">
+                <div class="image-row">
+                    <!--
+                    图片列表 — 在这里添加或删除 <div class="image-item"> 即可。
+                    图片 url 直接写在 src 里，建议使用 16:10 左右比例的图片。
+                    如果图片加载失败，会显示占位文字。
+                    -->
+                    <div class="image-item">
+                        <img src="./b_55891ec8a4c0b13250e2ef6f91d7de3b.jpg" alt="1" loading="lazy" />
+                    </div>
+                    <!--
+                    ===== ✨ 拓展指引 =====
+                    复制下方一整块 <div class="image-item"> ... </div> 粘贴到上一行后面即可添加新图片。
+                    记得替换 src 和 alt 属性。
+
+                    示例：
+                    <div class="image-item">
+                        <img src="你的图片链接.jpg" alt="作品 8" loading="lazy" />
+                    </div>
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            © 2026 · keep simple
+        </div>
+
+    </div>
+
+    <!-- ===== 新增：模态框（灯箱）HTML ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content" id="modalContent">
+            <img id="modalImage" src="" alt="预览大图" />
+            <button class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+    </div>
+
+    <!-- ===== 新增：JavaScript 控制图片放大 ===== -->
+    <script>
+        (function() {
+            const overlay = document.getElementById('modalOverlay');
+            const modalImg = document.getElementById('modalImage');
+            const closeBtn = document.getElementById('modalCloseBtn');
+            const imageRow = document.querySelector('.image-row');
+
+            function openModal(src, altText) {
+                modalImg.src = src;
+                modalImg.alt = altText || '大图预览';
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // 事件委托：点击 .image-item 时打开大图
+            imageRow.addEventListener('click', function(e) {
+                const item = e.target.closest('.image-item');
+                if (!item) return;
+                const img = item.querySelector('img');
+                if (img) {
+                    openModal(img.src, img.alt);
+                }
+            });
+
+            // 点击遮罩关闭
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal();
+                }
+            });
+
+            // 点击关闭按钮
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeModal();
+            });
+
+            // 按 ESC 键关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
